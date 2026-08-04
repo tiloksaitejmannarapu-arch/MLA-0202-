@@ -1,0 +1,42 @@
+from sklearn.naive_bayes import GaussianNB
+
+X = [
+    [1, 1, 1],
+    [1, 1, 0],
+    [1, 0, 1],
+    [0, 1, 1],
+    [0, 0, 0],
+    [0, 1, 0],
+    [1, 0, 0],
+    [0, 0, 1]
+]
+
+y = [
+    1,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0
+]
+
+model = GaussianNB()
+
+model.fit(X, y)
+
+fever = int(input("Fever (1=Yes, 0=No): "))
+cough = int(input("Cough (1=Yes, 0=No): "))
+headache = int(input("Headache (1=Yes, 0=No): "))
+
+new_patient = [[fever, cough, headache]]
+
+prediction = model.predict(new_patient)
+
+print("\nFLU PREDICTION")
+
+if prediction[0] == 1:
+    print("Result: Patient may have Flu")
+else:
+    print("Result: Patient may not have Flu")
