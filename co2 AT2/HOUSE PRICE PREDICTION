@@ -1,0 +1,53 @@
+from sklearn.linear_model import LinearRegression
+
+area = [
+    500, 600, 700, 800, 900,
+    1000, 1100, 1200, 1300, 1400,
+    1500, 1600
+]
+
+rooms = [
+    1, 1, 2, 2, 2,
+    3, 3, 3, 3, 4,
+    4, 4
+]
+
+location = [
+    1, 1, 1, 2, 2,
+    2, 2, 3, 3, 3,
+    3, 3
+]
+
+rent = [
+    8000, 9500, 11000, 14000, 15500,
+    18000, 19500, 22000, 24000, 27000,
+    30000, 33000
+]
+
+X = []
+
+for i in range(len(area)):
+    X.append([area[i], rooms[i], location[i]])
+
+model = LinearRegression()
+
+model.fit(X, rent)
+
+new_area = float(input("Enter floor area in sq.ft: "))
+new_rooms = int(input("Enter number of rooms: "))
+new_location = int(input("Enter location (1=Normal, 2=Prime, 3=Luxury): "))
+
+new_apartment = [[new_area, new_rooms, new_location]]
+
+prediction = model.predict(new_apartment)
+
+print("\n======================================")
+print("       APARTMENT RENT PREDICTION")
+print("======================================")
+
+print("Floor Area       :", new_area, "sq.ft")
+print("Number of Rooms  :", new_rooms)
+print("Location Code    :", new_location)
+print("Predicted Rent   : Rs.", round(prediction[0], 2))
+
+print("======================================")
