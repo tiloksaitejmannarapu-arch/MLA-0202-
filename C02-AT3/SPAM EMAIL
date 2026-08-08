@@ -1,0 +1,109 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+data = pd.DataFrame({
+    "message": [
+        "Win free cash prize now","Congratulations you won a prize",
+        "Claim your free reward","You won a lottery ticket",
+        "Get free money today","Urgent claim your reward",
+        "Free gift waiting for you","Win a shopping voucher",
+        "Congratulations claim now","Free entry to win cash",
+        "You won a special reward","Claim free coupon today",
+        "Are you coming to college","Send me the assignment",
+        "Can we meet tomorrow","I will call you later",
+        "Bring the project file","What time is the class",
+        "Meeting starts at ten","Send me the notes",
+        "I reached home safely","See you tomorrow",
+        "Submit the record","Are you attending seminar",
+        "Call me when you reach home","Project presentation tomorrow",
+        "Share the study material","Meet you after lunch",
+        "Where is the classroom","Let us discuss the project"
+    ],
+    "label": [
+        "spam","spam","spam","spam","spam","spam",
+        "spam","spam","spam","spam","spam","spam",
+        "ham","ham","ham","ham","ham","ham",
+        "ham","ham","ham","ham","ham","ham",
+        "ham","ham","ham","ham","ham","ham"
+    ]
+})
+
+x_train, x_test, y_train, y_test = train_test_split(
+    data.message, data.label,
+    test_size=0.3, random_state=42,
+    stratify=data.label
+)
+
+vectorizer = TfidfVectorizer(ngram_range=(1,2))
+x_train = vectorizer.fit_transform(x_train)
+x_test = vectorizer.transform(x_test)
+
+model = LogisticRegression(max_iter=1000)
+model.fit(x_train, y_train)
+
+p1 = model.predict(x_test)
+a1 = accuracy_score(y_test, p1)
+cm1 = confusion_matrix(y_test, p1)
+
+model2 = LogisticRegression(
+    class_weight="balanced",
+    max_iter=1000
+)
+
+model2.fit(x_train, y_train)
+
+p2 = model2.predict(x_test)
+a2 = accuracy_score(y_test, p2)
+cm2 = confusion_matrix(y_test, p2)
+
+print("SPAM EMAIL CLASSIFICATION")
+print("-------------------------")
+print("Initial Accuracy:", round(a1, 3))
+print("Optimized Accuracy:", round(a2, 3))
+
+print("\nInitial Confusion Matrix")
+print(cm1)
+
+print("\nOptimized Confusion Matrix")
+print(cm2)
+
+plt.figure(figsize=(10,5))
+
+plt.subplot(1,2,1)
+plt.bar(["Initial", "Optimized"], [a1, a2])
+plt.ylabel("Accuracy")
+plt.title("Model Accuracy Comparison")
+plt.ylim(0,1.1)
+
+plt.subplot(1,2,2)
+plt.bar(
+    ["Initial", "Optimized"],
+    [cm1[1][0], cm2[1][0]]
+)
+plt.ylabel("False Negatives")
+plt.title("Spam Misclassification")
+plt.grid(axis="y")
+
+plt.tight_layout()
+plt.show()
+
+messages = [
+    "Congratulations you won a free cash prize",
+    "Please send me the assignment",
+    "Claim your free reward now",
+    "Can we meet tomorrow",
+    "Urgent you won a lottery prize"
+]
+
+new = vectorizer.transform(messages)
+result = model2.predict(new)
+
+print("\nNEW MESSAGE PREDICTIONS")
+
+for m, r in zip(messages, result):
+    print("\nMessage:", m)
+    print("Prediction:", r.upper())
