@@ -1,0 +1,110 @@
+from pgmpy.models import DiscreteBayesianNetwork
+from pgmpy.factors.discrete import TabularCPD
+from pgmpy.inference import VariableElimination
+import matplotlib.pyplot as plt
+import networkx as nx
+
+# Create Bayesian Network
+model = DiscreteBayesianNetwork([
+    ('Obesity', 'Diabetes'),
+    ('HighSugar', 'Diabetes')
+])
+
+# Probability of Obesity
+cpd_obesity = TabularCPD(
+    variable='Obesity',
+    variable_card=2,
+    values=[[0.65],
+            [0.35]],
+    state_names={'Obesity': ['No', 'Yes']}
+)
+
+# Probability of High Blood Sugar
+cpd_sugar = TabularCPD(
+    variable='HighSugar',
+    variable_card=2,
+    values=[[0.70],
+            [0.30]],
+    state_names={'HighSugar': ['No', 'Yes']}
+)
+
+# Probability of Diabetes
+cpd_diabetes = TabularCPD(
+    variable='Diabetes',
+    variable_card=2,
+    values=[
+        [0.95, 0.70, 0.60, 0.20],
+        [0.05, 0.30, 0.40, 0.80]
+    ],
+    evidence=['Obesity', 'HighSugar'],
+    evidence_card=[2, 2],
+    state_names={
+        'Diabetes': ['No', 'Yes'],
+        'Obesity': ['No', 'Yes'],
+        'HighSugar': ['No', 'Yes']
+    }
+)
+
+model.add_cpds(
+    cpd_obesity,
+    cpd_sugar,
+    cpd_diabetes
+)
+
+print("Model Valid:", model.check_model())
+
+# Perform inference
+inference = VariableElimination(model)
+
+result = inference.query(
+    variables=['Diabetes'],
+    evidence={
+        'Obesity': 'Yes',
+        'HighSugar': 'Yes'
+    }
+)
+
+print("\nPrediction:")
+print(result)
+
+probability = result.values[1]
+
+print("\nProbability of Diabetes:",
+      round(probability * 100, 2), "%")
+
+# Single meaningful graph
+plt.figure(figsize=(8, 5))
+
+graph = nx.DiGraph()
+
+graph.add_edges_from([
+    ('Obesity', 'Diabetes'),
+    ('HighSugar', 'Diabetes')
+])
+
+pos = {
+    'Obesity': (0, 1),
+    'HighSugar': (0, -1),
+    'Diabetes': (2, 0)
+}
+
+nx.draw(
+    graph,
+    pos,
+    with_labels=True,
+    node_size=4000,
+    node_color='lightblue',
+    font_size=11,
+    font_weight='bold',
+    arrows=True,
+    arrowsize=20
+)
+
+plt.title(
+    "Bayesian Network: Diabetes Prediction\n"
+    "Obesity = Yes, High Blood Sugar = Yes"
+)
+
+plt.axis("off")
+plt.tight_layout()
+plt.show()
