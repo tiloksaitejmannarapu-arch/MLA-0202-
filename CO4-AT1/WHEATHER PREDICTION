@@ -1,0 +1,114 @@
+import matplotlib.pyplot as plt
+
+states = ["Sunny", "Cloudy", "Rainy"]
+
+initial = {
+    "Sunny": 0.5,
+    "Cloudy": 0.3,
+    "Rainy": 0.2
+}
+
+transition = {
+    "Sunny": {"Sunny": 0.6, "Cloudy": 0.3, "Rainy": 0.1},
+    "Cloudy": {"Sunny": 0.3, "Cloudy": 0.4, "Rainy": 0.3},
+    "Rainy": {"Sunny": 0.2, "Cloudy": 0.3, "Rainy": 0.5}
+}
+
+emission = {
+    "Sunny": {"Dry": 0.7, "Humid": 0.2, "Wet": 0.1},
+    "Cloudy": {"Dry": 0.2, "Humid": 0.6, "Wet": 0.2},
+    "Rainy": {"Dry": 0.1, "Humid": 0.3, "Wet": 0.6}
+}
+
+observed = ["Dry", "Humid", "Wet", "Wet", "Humid"]
+
+viterbi = []
+paths = []
+
+probability = {}
+
+for state in states:
+    probability[state] = (
+        initial[state] *
+        emission[state][observed[0]]
+    )
+
+viterbi.append(probability.copy())
+
+for i in range(1, len(observed)):
+
+    new_probability = {}
+    new_path = {}
+
+    for current in states:
+
+        values = {}
+
+        for previous in states:
+            values[previous] = (
+                probability[previous] *
+                transition[previous][current] *
+                emission[current][observed[i]]
+            )
+
+        best_previous = max(values, key=values.get)
+
+        new_probability[current] = values[best_previous]
+        new_path[current] = best_previous
+
+    probability = new_probability
+
+    viterbi.append(probability.copy())
+    paths.append(new_path)
+
+current = max(probability, key=probability.get)
+
+result = [current]
+
+for i in range(len(paths) - 1, -1, -1):
+    current = paths[i][current]
+    result.append(current)
+
+result.reverse()
+
+print("HIDDEN MARKOV MODEL")
+print("-------------------")
+
+print("Observed Weather:")
+print(observed)
+
+print("\nPredicted Hidden States:")
+print(result)
+
+# Graph
+values = []
+
+for state in result:
+    values.append(states.index(state) + 1)
+
+plt.figure(figsize=(9, 5))
+
+plt.plot(
+    range(1, len(result) + 1),
+    values,
+    marker="o",
+    linewidth=2
+)
+
+plt.yticks(
+    [1, 2, 3],
+    ["Sunny", "Cloudy", "Rainy"]
+)
+
+plt.xticks(
+    range(1, 6),
+    ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"]
+)
+
+plt.xlabel("Day")
+plt.ylabel("Predicted Weather")
+plt.title("Hidden Markov Model - Weather Prediction")
+
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
