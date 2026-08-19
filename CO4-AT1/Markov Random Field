@@ -1,0 +1,54 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Small grayscale image with noise
+image = np.array([
+    [50, 52, 49, 51, 48],
+    [51, 180, 52, 50, 49],
+    [48, 50, 55, 52, 51],
+    [49, 53, 50, 175, 48],
+    [52, 51, 49, 50, 53]
+], dtype=float)
+
+# Create updated image
+updated = image.copy()
+
+# One MRF smoothing iteration
+for i in range(1, 4):
+    for j in range(1, 4):
+
+        neighbors = [
+            image[i-1, j],
+            image[i+1, j],
+            image[i, j-1],
+            image[i, j+1]
+        ]
+
+        updated[i, j] = (
+            image[i, j] +
+            sum(neighbors)
+        ) / 5
+
+print("ORIGINAL IMAGE VALUES")
+print("----------------------")
+print(image.astype(int))
+
+print("\nUPDATED IMAGE VALUES")
+print("--------------------")
+print(updated.astype(int))
+
+# Display original and updated image
+plt.figure(figsize=(9, 4))
+
+plt.subplot(1, 2, 1)
+plt.imshow(image, cmap="gray", vmin=0, vmax=255)
+plt.title("Original Noisy Image")
+plt.axis("off")
+
+plt.subplot(1, 2, 2)
+plt.imshow(updated, cmap="gray", vmin=0, vmax=255)
+plt.title("After MRF Smoothing")
+plt.axis("off")
+
+plt.tight_layout()
+plt.show()
