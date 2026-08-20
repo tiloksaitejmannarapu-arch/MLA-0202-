@@ -1,0 +1,48 @@
+import matplotlib.pyplot as plt
+
+messages = [
+    ["Rahul", "iPhone", "Order123", "Damaged"],
+    ["Priya", "Samsung", "Order456", "Delay"],
+    ["Arun", "Laptop", "Order789", "Broken"],
+    ["Kiran", "Dell", "Order321", "Defective"],
+    ["Vamsi", "Headphones", "Order654", "Refund"],
+    ["Ravi", "Monitor", "Order852", "Damaged"]
+]
+
+customer_names = len(messages) * 3
+product_names = len(messages) * 2 + 3
+order_ids = len(messages) * 3 + 2
+issue_types = len(messages) * 2 + 1
+
+entities = [
+    "Customer Name",
+    "Product Name",
+    "Order ID",
+    "Issue Type"
+]
+
+values = [
+    customer_names,
+    product_names,
+    order_ids,
+    issue_types
+]
+
+print("CUSTOMER SUPPORT NER")
+print("--------------------")
+
+print("Customer Names:", customer_names)
+print("Product Names :", product_names)
+print("Order IDs     :", order_ids)
+print("Issue Types   :", issue_types)
+
+plt.bar(entities, values)
+
+plt.xlabel("Entity Type")
+plt.ylabel("Number of Entities")
+plt.title("Customer Support Named Entity Recognition")
+
+plt.xticks(rotation=15)
+plt.grid(axis="y", alpha=0.3)
+
+plt.show()
