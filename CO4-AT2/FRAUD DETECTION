@@ -1,0 +1,43 @@
+import matplotlib.pyplot as plt
+
+history = 0.10
+unknown_location = 0.20
+new_device = 0.25
+high_amount = 0.30
+
+fraud = (
+    history * 0.90 +
+    unknown_location * 0.80 +
+    new_device * 0.70 +
+    high_amount * 0.60
+)
+
+fraud = min(fraud, 1)
+legitimate = 1 - fraud
+
+print("FRAUD DETECTION RESULT")
+print("----------------------")
+print("Previous Fraud History :", history * 100, "%")
+print("Unknown Location       :", unknown_location * 100, "%")
+print("New Device             :", new_device * 100, "%")
+print("High Transaction Amount:", high_amount * 100, "%")
+print()
+print("Fraud Probability      :", round(fraud * 100, 2), "%")
+print("Legitimate Probability :", round(legitimate * 100, 2), "%")
+
+if fraud >= 0.5:
+    print("Prediction: FRAUDULENT")
+else:
+    print("Prediction: LEGITIMATE")
+
+plt.bar(
+    ["Legitimate", "Fraudulent"],
+    [legitimate, fraud]
+)
+
+plt.title("Credit Card Fraud Prediction")
+plt.xlabel("Transaction Type")
+plt.ylabel("Probability")
+plt.ylim(0, 1)
+
+plt.show()
