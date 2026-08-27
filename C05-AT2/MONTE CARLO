@@ -1,0 +1,50 @@
+from sklearn.datasets import fetch_california_housing
+import numpy as np
+import matplotlib.pyplot as plt
+
+data = fetch_california_housing()
+
+values = data.target
+
+median_value = np.median(values)
+
+outcomes = values > median_value
+
+n = 10000
+
+samples = np.random.choice(
+    outcomes,
+    size=n,
+    replace=True
+)
+
+probability = np.cumsum(samples) / np.arange(1, n + 1)
+
+actual_probability = outcomes.mean()
+
+print("Actual Probability:", round(actual_probability, 4))
+print("Monte Carlo Probability:", round(probability[-1], 4))
+
+plt.figure(figsize=(10, 5))
+
+plt.plot(
+    probability,
+    label="Monte Carlo Estimate"
+)
+
+plt.axhline(
+    actual_probability,
+    linestyle="--",
+    label="Actual Dataset Probability"
+)
+
+plt.xlabel("Number of Simulations")
+plt.ylabel("Probability")
+
+plt.title(
+    "Monte Carlo Estimation Using California Housing Data"
+)
+
+plt.legend()
+plt.grid()
+plt.show()
