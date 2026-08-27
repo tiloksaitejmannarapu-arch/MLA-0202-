@@ -1,0 +1,117 @@
+from sklearn.datasets import load_digits
+from sklearn.metrics import pairwise_distances
+import numpy as np
+import matplotlib.pyplot as plt
+
+data = load_digits()
+
+X = data.data
+y = data.target
+
+X = X[:300]
+y = y[:300]
+
+distances = pairwise_distances(X)
+
+n = len(X)
+
+gamma = 0.9
+
+policy = {}
+
+for state in range(n):
+
+    actions = np.argsort(
+        distances[state]
+    )[1:6]
+
+    policy[state] = actions[0]
+
+changes_history = []
+
+for iteration in range(50):
+
+    V = np.zeros(n)
+
+    for _ in range(100):
+
+        new_V = V.copy()
+
+        for state in range(n):
+
+            if state not in policy:
+                continue
+
+            action = policy[state]
+
+            reward = (
+                1
+                if y[state] == y[action]
+                else -1
+            )
+
+            new_V[state] = (
+                reward +
+                gamma * V[action]
+            )
+
+        if np.max(
+            np.abs(new_V - V)
+        ) < 0.001:
+            break
+
+        V = new_V
+
+    changes = 0
+
+    for state in range(n):
+
+        actions = np.argsort(
+            distances[state]
+        )[1:6]
+
+        best_action = max(
+            actions,
+            key=lambda action:
+            (
+                (1 if y[state] == y[action]
+                 else -1)
+                +
+                gamma * V[action]
+            )
+        )
+
+        if policy[state] != best_action:
+
+            policy[state] = best_action
+
+            changes += 1
+
+    changes_history.append(changes)
+
+    print(
+        "Iteration:",
+        iteration + 1,
+        "Policy Changes:",
+        changes
+    )
+
+    if changes == 0:
+        break
+
+plt.figure(figsize=(10, 5))
+
+plt.plot(
+    changes_history,
+    marker="o"
+)
+
+plt.xlabel("Policy Iteration")
+plt.ylabel("Number of Policy Changes")
+
+plt.title(
+    "Policy Iteration Using Real Digits Dataset"
+)
+
+plt.grid()
+plt.show()
