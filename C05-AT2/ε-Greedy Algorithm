@@ -1,0 +1,95 @@
+from sklearn.datasets import load_wine
+import numpy as np
+import matplotlib.pyplot as plt
+
+data = load_wine()
+
+X = data.data
+y = data.target
+
+alcohol = X[:, 0]
+
+arms = np.unique(y)
+
+rewards = {}
+
+for arm in arms:
+    rewards[arm] = alcohol[y == arm]
+
+epsilon = 0.1
+
+counts = {
+    arm: 0 for arm in arms
+}
+
+estimates = {
+    arm: 0 for arm in arms
+}
+
+history = []
+
+for i in range(5000):
+
+    if np.random.random() < epsilon:
+        arm = np.random.choice(arms)
+    else:
+        arm = max(
+            estimates,
+            key=estimates.get
+        )
+
+    reward = np.random.choice(
+        rewards[arm]
+    )
+
+    counts[arm] += 1
+
+    estimates[arm] += (
+        reward - estimates[arm]
+    ) / counts[arm]
+
+    history.append(
+        estimates[arm]
+    )
+
+best_arm = max(
+    estimates,
+    key=estimates.get
+)
+
+print("Best Wine Class:", best_arm)
+print(
+    "Estimated Reward:",
+    round(estimates[best_arm], 3)
+)
+
+plt.figure(figsize=(10, 5))
+
+plt.plot(history)
+
+plt.xlabel("Interactions")
+plt.ylabel("Estimated Reward")
+
+plt.title(
+    "ε-Greedy Learning Using Real Wine Dataset"
+)
+
+plt.grid()
+plt.show()
+
+plt.figure(figsize=(8, 5))
+
+plt.bar(
+    [str(x) for x in arms],
+    [estimates[x] for x in arms]
+)
+
+plt.xlabel("Wine Class")
+plt.ylabel("Estimated Alcohol")
+
+plt.title(
+    "Estimated Reward for Each Wine Class"
+)
+
+plt.grid()
+plt.show()
