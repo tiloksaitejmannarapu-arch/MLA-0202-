@@ -1,0 +1,113 @@
+from sklearn.datasets import load_iris
+from sklearn.metrics import pairwise_distances
+import numpy as np
+import matplotlib.pyplot as plt
+
+data = load_iris()
+
+X = data.data
+y = data.target
+
+X = X[:50]
+
+distances = pairwise_distances(X)
+
+n = len(X)
+
+V = np.zeros(n)
+
+gamma = 0.9
+
+errors = []
+
+goal = n - 1
+
+for iteration in range(100):
+
+    new_V = V.copy()
+
+    for state in range(n):
+
+        if state == goal:
+            new_V[state] = 100
+            continue
+
+        next_states = np.argsort(
+            distances[state]
+        )[1:6]
+
+        values = []
+
+        for next_state in next_states:
+
+            reward = -distances[
+                state,
+                next_state
+            ]
+
+            value = (
+                reward +
+                gamma * V[next_state]
+            )
+
+            values.append(value)
+
+        new_V[state] = max(values)
+
+    error = np.max(
+        np.abs(new_V - V)
+    )
+
+    errors.append(error)
+
+    V = new_V
+
+    if error < 0.001:
+        break
+
+policy = {}
+
+for state in range(n):
+
+    if state == goal:
+        continue
+
+    next_states = np.argsort(
+        distances[state]
+    )[1:6]
+
+    policy[state] = max(
+        next_states,
+        key=lambda s:
+        -distances[state, s]
+        + gamma * V[s]
+    )
+
+print("Iterations:", len(errors))
+
+print("Sample Optimal Policy:")
+
+for state in range(10):
+
+    print(
+        state,
+        "->",
+        policy[state]
+    )
+
+plt.figure(figsize=(10, 5))
+
+plt.plot(
+    errors,
+    marker="o"
+)
+
+plt.xlabel("Iteration")
+plt.ylabel("Maximum Value Change")
+
+plt.title(
+    "Value Iteration Convergence Using Real Iris Data"
+)
+
+plt.grid()
+plt.show()
