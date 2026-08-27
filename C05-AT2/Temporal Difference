@@ -1,0 +1,93 @@
+from sklearn.datasets import load_digits
+from sklearn.metrics import pairwise_distances
+import numpy as np
+import matplotlib.pyplot as plt
+
+data = load_digits()
+
+X = data.data
+y = data.target
+
+X = X[:500]
+y = y[:500]
+
+distances = pairwise_distances(X)
+
+alpha = 0.1
+gamma = 0.9
+
+V = {}
+
+errors = []
+
+for i in range(len(X)):
+
+    V[i] = 0
+
+for episode in range(200):
+
+    state = np.random.randint(
+        0,
+        len(X) - 1
+    )
+
+    episode_errors = []
+
+    for step in range(20):
+
+        next_states = np.argsort(
+            distances[state]
+        )[1:6]
+
+        next_state = np.random.choice(
+            next_states
+        )
+
+        reward = (
+            1
+            if y[state] == y[next_state]
+            else -1
+        )
+
+        td_target = (
+            reward +
+            gamma * V[next_state]
+        )
+
+        td_error = (
+            td_target -
+            V[state]
+        )
+
+        V[state] += (
+            alpha * td_error
+        )
+
+        episode_errors.append(
+            abs(td_error)
+        )
+
+        state = next_state
+
+    errors.append(
+        np.mean(episode_errors)
+    )
+
+print("States Learned:", len(V))
+
+plt.figure(figsize=(10, 5))
+
+plt.plot(
+    errors,
+    marker="."
+)
+
+plt.xlabel("Episode")
+plt.ylabel("Average TD Error")
+
+plt.title(
+    "Temporal Difference Learning Using Real Digits Data"
+)
+
+plt.grid()
+plt.show()
